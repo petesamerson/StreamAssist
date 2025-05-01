@@ -1,17 +1,16 @@
 import signal
 import sys
+import threading
 from multiprocessing.spawn import get_command_line
-
 import requests
 from bs4 import BeautifulSoup
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import socket
-import tkinter as tk
-from tkinter import filedialog
 import shutil
 
+from test import connectToChat
 
 URL = "https://nbq.gerhard.dev/16168"
 OUTPUT_QUEUE_FILE = "list_items.txt"
@@ -20,14 +19,7 @@ INTERVAL = 10  # seconds
 
 
 
-# GUI
-root = tk.Tk()
-root.title("Image Selector")
-
-btn = tk.Button(root, text="Select Image", command=get_command_line('klk'))
-btn.pack(padx=20, pady=20)
-
-root.mainloop()
+# GUI ------------
 
 def fetch_list_items(url):
     try:
@@ -44,15 +36,6 @@ def fetch_list_items(url):
     except Exception as e:
         return [f"Error fetching data: {e}"]
 
-def update_file_loop():
-    while True:
-        list_items = fetch_list_items(URL)
-        with open(OUTPUT_QUEUE_FILE, 'w', encoding='utf-8') as f:
-            for item in list_items:
-                f.write(item + '\n')
-        print("Updated list_items.txt")
-        time.sleep(INTERVAL)
-
 def update_spotify_loop():
     while True:
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -64,26 +47,47 @@ def update_spotify_loop():
         current = sp.current_playback()
         if current and current.get("is_playing"):
             song = f"{current['item']['name']} - {current['item']['artists'][0]['name']}"
-            print("Now playing:", song)
-            with open(OUTPUT_SPOTIFY_FILE, 'w', encoding='utf-8') as f:
-                f.write("Current Song: " + song)
-                print("Updated spotify_info.txt")
+            print(formatSongName(song))
+            with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
+                print(["REEED", f.read(), formatSongName(song)])
+                if f.read() != formatSongName(song):
+                    f.write(formatSongName(song))
+                    print("Updated spotify_info.txt")
         else:
-            with open(OUTPUT_SPOTIFY_FILE, 'w', encoding='utf-8') as f:
-                f.write("")
-                print("Updated spotify_info.txt")
+            with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
+                if f.tell() != 0:
+                    f.write("")
+                    print("Updated spotify_info.txt")
 
+
+        # list_items = fetch_list_items(URL)
+        # with open(OUTPUT_QUEUE_FILE, 'w', encoding='utf-8') as f:
+        #     for item in list_items:
+        #         f.write(item + '\n')
+        # print("Updated list_items.txt")
+
+        time.sleep(INTERVAL)
+
+def formatSongName(name):
+    return "Listening Now: " + name
+
+def update_queue_loop():
+    while True:
         list_items = fetch_list_items(URL)
         with open(OUTPUT_QUEUE_FILE, 'w', encoding='utf-8') as f:
             for item in list_items:
                 f.write(item + '\n')
         print("Updated list_items.txt")
-
-
         time.sleep(INTERVAL)
 
 
 
+chatThread = threading.Thread(target=connectToChat)
+queueThread = threading.Thread(target=update_queue_loop)
+spotifyThread = threading.Thread(target=update_spotify_loop)
+
+
 if __name__ == "__main__":
-    update_spotify_loop()
-    # update_file_loop()
+    chatThread.start()
+    spotifyThread.start()
+    queueThread.start()

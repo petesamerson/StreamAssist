@@ -55,9 +55,9 @@ def on_join(connection, event):
 
 def on_pubmsg(connection, event):
     print(f"{event.source.nick}: {event.arguments[0]}")
-    connection.privmsg(CHANNEL, "LOOK I HAVE NO HANDS AT ALL")
+#    connection.privmsg(CHANNEL, "LOOK I HAVE NO HANDS AT ALL")
 
-def main():
+def connectToChat():
 	reactor = client.Reactor()
 	server = "irc.chat.twitch.tv"
 	try:
@@ -70,8 +70,10 @@ def main():
 		print("❌ Connection error:", e)
 	return
 
+
+
 if __name__ == "__main__":
-	main()
+	connectToChat()
 
 
 
