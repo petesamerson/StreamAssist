@@ -20,41 +20,22 @@ URL = "https://nbq.gerhard.dev/16168"
 OUTPUT_FILE = "list_items.txt"
 INTERVAL = 60  # seconds
 
-def fetch_list_items(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.select(".list-group-item")
-
-        if not items:
-            return ["No list items found."]
-        
-        return [item.get_text(strip=True) for item in items]
-    except Exception as e:
-        return [f"Error fetching data: {e}"]
-
-def update_file_loop():
-    while True:
-        list_items = fetch_list_items(URL)
-        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-            for item in list_items:
-                f.write(item + '\n')
-        print("Updated list_items.txt")
-        time.sleep(INTERVAL)
+curMessage = "Start"
 
 def on_connect(connection, event):
-    print("Connected to Twitch chat.")
-    connection.join(CHANNEL)
+	print("Connected to Twitch chat.")
+	connection.join(CHANNEL)
 
 def on_join(connection, event):
-    print(f"Joined {CHANNEL}.")
-    # Correct indentation of the next line
-
+	print(f"Joined {CHANNEL}.")
+	# Correct indentation of the next line
 
 def on_pubmsg(connection, event):
-    print(f"{event.source.nick}: {event.arguments[0]}")
+	global curMessage
+	message = f"{event.source.nick}: {event.arguments[0]}"
+	print(message)
+	curMessage = message
+
 #    connection.privmsg(CHANNEL, "LOOK I HAVE NO HANDS AT ALL")
 
 def connectToChat():

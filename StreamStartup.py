@@ -10,6 +10,9 @@ from spotipy.oauth2 import SpotifyOAuth
 import socket
 import shutil
 
+import GlobalVariables
+import test
+from GUIed import launch_gui
 from test import connectToChat
 
 URL = "https://nbq.gerhard.dev/16168"
@@ -18,8 +21,6 @@ OUTPUT_SPOTIFY_FILE = "spotify_info.txt"
 INTERVAL = 10  # seconds
 
 
-
-# GUI ------------
 
 def fetch_list_items(url):
     try:
@@ -48,10 +49,19 @@ def update_spotify_loop():
         if current and current.get("is_playing"):
             song = f"{current['item']['name']} - {current['item']['artists'][0]['name']}"
             print(formatSongName(song))
+
+
             with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
                 print(["REEED", f.read(), formatSongName(song)])
                 if f.read() != formatSongName(song):
                     f.write(formatSongName(song))
+                    test.curMessage = formatSongName(song)
+
+
+                    album_images = current['item']['album']['images']
+                    if album_images:
+                        GlobalVariables.album_art = album_images[0]['url']
+
                     print("Updated spotify_info.txt")
         else:
             with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
@@ -85,9 +95,11 @@ def update_queue_loop():
 chatThread = threading.Thread(target=connectToChat)
 queueThread = threading.Thread(target=update_queue_loop)
 spotifyThread = threading.Thread(target=update_spotify_loop)
+guiThread = threading.Thread(target=launch_gui)
 
 
 if __name__ == "__main__":
     chatThread.start()
     spotifyThread.start()
     queueThread.start()
+    guiThread.start()
