@@ -10,7 +10,7 @@ from spotipy.oauth2 import SpotifyOAuth
 import socket
 import shutil
 
-import GlobalVariables
+import Communism
 import test
 from GUIed import launch_gui
 from test import connectToChat
@@ -20,8 +20,15 @@ OUTPUT_QUEUE_FILE = "list_items.txt"
 OUTPUT_SPOTIFY_FILE = "spotify_info.txt"
 INTERVAL = 10  # seconds
 
-
-
+sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+    client_id="524c7ec66091471ebe3ab05030eaffc0",
+    client_secret="9bbb422b5b5042b0834b929874512add",
+    redirect_uri="https://127.0.0.1:8888/callback",
+    scope="""
+        user-read-currently-playing user-read-playback-state
+        user-read-playback-state user-modify-playback-state
+    """
+))
 def fetch_list_items(url):
     try:
         response = requests.get(url)
@@ -39,30 +46,24 @@ def fetch_list_items(url):
 
 def update_spotify_loop():
     while True:
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-            client_id="524c7ec66091471ebe3ab05030eaffc0",
-            client_secret="9bbb422b5b5042b0834b929874512add",
-            redirect_uri="https://127.0.0.1:8888/callback",
-            scope="user-read-currently-playing user-read-playback-state"
-        ))
         current = sp.current_playback()
         if current and current.get("is_playing"):
             song = f"{current['item']['name']} - {current['item']['artists'][0]['name']}"
-            print(formatSongName(song))
+            # print(formatSongName(song))
 
 
-            with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
-                print(["REEED", f.read(), formatSongName(song)])
+            with open(OUTPUT_SPOTIFY_FILE, 'r+', encoding='utf-8') as f:
                 if f.read() != formatSongName(song):
+                    print(["REEED", f.read(), formatSongName(song)])
+                    f.seek(0)
                     f.write(formatSongName(song))
+                    f.truncate()
                     test.curMessage = formatSongName(song)
-
-
-                    album_images = current['item']['album']['images']
-                    if album_images:
-                        GlobalVariables.album_art = album_images[0]['url']
-
                     print("Updated spotify_info.txt")
+
+                album_images = current['item']['album']['images']
+                if album_images:
+                    Communism.album_art = album_images[0]['url']
         else:
             with open(OUTPUT_SPOTIFY_FILE, 'w+', encoding='utf-8') as f:
                 if f.tell() != 0:
@@ -77,6 +78,15 @@ def update_spotify_loop():
         # print("Updated list_items.txt")
 
         time.sleep(INTERVAL)
+
+def pause_song():
+    playback = sp.current_playback()
+    if playback and playback['is_playing']:
+        print("pause")
+        sp.pause_playback()
+    else:
+        print("pause")
+        sp.start_playback()
 
 def formatSongName(name):
     return "Listening Now: " + name

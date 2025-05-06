@@ -3,12 +3,13 @@ from io import BytesIO
 from pydoc_data.topics import topics
 
 import requests
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap, QColor
+from PyQt5.QtCore import Qt, QTimer, QSize
+from PyQt5.QtGui import QPixmap, QColor, QIcon
 from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QPushButton, QMessageBox, \
     QGraphicsColorizeEffect, QSizePolicy, QTextEdit
 
-import GlobalVariables
+import Communism
+import StreamStartup
 import test
 from test import curMessage
 
@@ -41,11 +42,20 @@ def launch_gui():
     # imageLabel.setGraphicsEffect(tint)
     # layout.addWidget(imageLabel)
 
+
+    pause_button = QPushButton(window)
+    pause_button.setIcon(QIcon("thumbnail_pikminsux.jpg"))
+    pause_button.setIconSize(QSize(50,50))
+    pause_button.move(0,bottom - 50)
+    pause_button.clicked.connect(Communism.play_pause)
+    pause_button.setFlat(True)
+    pause_button.raise_()
+
     text_label = QTextEdit("I CAN STILL TEXT", window)
     text_label.setAlignment(Qt.AlignCenter)
     text_label.setGeometry(0,0,window.width(), window.height())
     text_label.setStyleSheet("background-color: transparent")
-    text_label.raise_()
+    text_label.stackUnder(pause_button)
     # text_label.setWordWrap(True)
     text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -73,8 +83,8 @@ def launch_gui():
         text_label.setAlignment(Qt.AlignCenter)
 
     def update_cover():
-        if(GlobalVariables.album_art != ""):
-            response = requests.get(GlobalVariables.album_art)
+        if Communism.album_art != "":
+            response = requests.get(Communism.album_art)
             image_data = BytesIO(response.content)
             pixmap.loadFromData(image_data.read())
             scaledPixmap = pixmap.scaled(window.width(), window.height(), Qt.KeepAspectRatio)  # Keep aspect ratio
