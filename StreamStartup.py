@@ -51,7 +51,6 @@ def update_spotify_loop():
             song = f"{current['item']['name']} - {current['item']['artists'][0]['name']}"
             # print(formatSongName(song))
 
-
             with open(OUTPUT_SPOTIFY_FILE, 'r+', encoding='utf-8') as f:
                 if f.read() != formatSongName(song):
                     print(["REEED", f.read(), formatSongName(song)])
