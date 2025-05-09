@@ -2,7 +2,7 @@ import math
 import sys
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPainter, QColor
+from PyQt5.QtGui import QPainter, QColor, QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel
 
 start = 0
@@ -39,13 +39,18 @@ class PollingWidget(QWidget):
 
         i = 0
         colors = generate_rainbow_rgb(len(self.vote_list))
+        font = QFont("Arial", 16)
+        painter.setFont(font)
         for vote in self.vote_list:
-            painter.setBrush(QColor(colors[i][0], colors[i][1], colors[i][2]))
+            color = QColor(colors[i][0], colors[i][1], colors[i][2])
+            painter.setBrush(color)
+            painter.setPen(color)
             index_adjust = int((bottom-50)/len(self.vote_list))
             v_adjust = index_adjust*i
             bar_size = index_adjust - int(index_adjust/2)
             if vote < 500:
                 painter.drawRect(0, bar_size + v_adjust, vote, bar_size)
+                painter.drawText(0, bar_size + v_adjust, str(vote))
             else:
                 painter.drawRect(0,bar_size + v_adjust , 500, bar_size)
             i += 1
