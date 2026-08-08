@@ -94,7 +94,7 @@ def launch_gui():
             image_label.setGeometry(0,0,window.width(), window.height())
 
     def update_spotify_gui():
-        # update_text()
+        #update_text()
         update_cover()
 
     timer = QTimer()
