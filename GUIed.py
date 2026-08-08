@@ -51,36 +51,37 @@ def launch_gui():
     pause_button.setFlat(True)
     pause_button.raise_()
 
-    text_label = QTextEdit("I CAN STILL TEXT", window)
-    text_label.setAlignment(Qt.AlignCenter)
-    text_label.setGeometry(0,0,window.width(), window.height())
-    text_label.setStyleSheet("background-color: transparent")
-    text_label.stackUnder(pause_button)
-    # text_label.setWordWrap(True)
-    text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    # text_label = QTextEdit("I CAN STILL TEXT", window)
+    # text_label.setAlignment(Qt.AlignCenter)
+    # text_label.setGeometry(0,0,window.width(), window.height())
+    # text_label.setStyleSheet("background-color: transparent")
+    # text_label.stackUnder(pause_button)
+    # # text_label.setWordWrap(True)
+    # text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
 
 
     # layout.addWidget(text_label, 0, Qt.AlignCenter)
     # text_label.move(0, -150)
 
-    button = QPushButton("Challenge",window)
-    def on_click():
-        QMessageBox.information(window, "Message", "Die Facist!")
-    button.clicked.connect(on_click)
-    button.move(int(text_label.x()), (int(text_label.height()) + int(button.height())))
+    # button = QPushButton("Challenge",window)
+    # def on_click():
+    #     QMessageBox.information(window, "Message", "Die Facist!")
+    # button.clicked.connect(on_click)
+
+    # button.move(int(text_label.x()), (int(text_label.height()) + int(button.height())))
     # layout.addWidget(button)
 
     # window.setLayout(layout)
     window.show()
 
-    def update_text():
-        text_label.setHtml(f'''
-            <div style = "text-align: center;">
-                <span style="background-color: black"> {test.curMessage}</span>
-            </div>
-        ''')
-        text_label.setAlignment(Qt.AlignCenter)
+    # def update_text():
+    #     text_label.setHtml(f'''
+    #         <div style = "text-align: center;">
+    #             <span style="background-color: black"> {test.curMessage}</span>
+    #         </div>
+    #     ''')
+    #     text_label.setAlignment(Qt.AlignCenter)
 
     def update_cover():
         if Communism.album_art != "":
@@ -93,7 +94,7 @@ def launch_gui():
             image_label.setGeometry(0,0,window.width(), window.height())
 
     def update_spotify_gui():
-        update_text()
+        # update_text()
         update_cover()
 
     timer = QTimer()

@@ -1,115 +1,127 @@
 import math
 import sys
+import tkinter as tk
 
-from PyQt5.QtCore import Qt, QTimer, QPoint
-from PyQt5.QtGui import QPainter, QColor, QFont, QPolygon
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel
+import sounddevice as sd
+import numpy as np
 
-width = 300
-height = 300
+SAMPLE_RATE = 44100
+BLOCK_SIZE = 1024
+
+stream = sd.InputStream(
+    channels = 1,
+    samplerate = SAMPLE_RATE,
+    blocksize = BLOCK_SIZE
+)
+
+stream.start()
+
+root = tk.Tk()
+
+transparent_color = "magenta"
+root.configure(bg=transparent_color)
+root.wm_attributes("-transparentcolor", transparent_color)
+
+# root.overrideredirect(True) # Remove window border
+root.geometry("500x500")
+
+canvas = tk.Canvas(
+    root,
+    width = 500,
+    height = 500,
+    bg=transparent_color,
+    highlightthickness=0
+)
+canvas.pack()
+
+def get_mic_volume():
+    data, overflowed = stream.read(1024)
+
+    rms = np.sqrt(np.mean(data.astype(np.float64)**2))
+
+    return rms * 1000
+
+def rgb(r, g, b):
+    return f"#{r:02x}{g:02x}{b:02x}"
+x = 200
+y = 200
+
+ball = canvas.create_oval(
+    x - 200, y - 200,
+    x + 200, y + 200,
+    fill="black",
+    outline="",
+    width=0
+)
+
+dots = []
+for i in range(50):
+    alpha = 1
+    color = rgb(255 - i*5, 255,  255)
+    dots.append(
+        canvas.create_oval(
+            x - 8, y - 8,
+            x + 8, y + 8,
+            fill = color
+        )
+    )
 
 
-class AnimationWidget(QWidget):
-    rotation = float(10)
-    color_index = 0
+smoothed_volume = 0
+rotation_modifier = 0.00
 
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Mic Animation")
-        self.setGeometry(0, 0, width, height)
+def animate():
+    global smoothed_volume
+    global rotation_modifier
 
-    class Triangle:
-        poly = None
-        def __init__(self, center_x, center_y, size):
-            divide_size = int(size/3)
-            self.poly = QPolygon([
-                QPoint(center_x + divide_size*2, center_y + divide_size),
-                QPoint(center_x + divide_size,center_y + size),
-                QPoint(center_x + size,center_x + size)
-            ])
+    volume = get_mic_volume()
+    rotation_modifier = rotation_modifier + 0.1
+    if(rotation_modifier > 2*math.pi):
+        rotation_modifier = 0
 
-    triangles = []
+    # Smooth the volume so the ball doesn't jitter
+    smoothed_volume = smoothed_volume * 0.8 + volume * 0.2
 
+    radius = 25 + smoothed_volume
 
-    def paintEvent(self, event):
-        global range
-        painter = QPainter(self)
-        painter.setPen(Qt.NoPen)
+    # canvas.coords(
+    #     ball,
+    #     x - radius,
+    #     y - radius,
+    #     x + radius,
+    #     y + radius
+    # )
 
-        def generate_rainbow_rgb(num_colors):
-            colors = []
-            for i in range(num_colors):
-                # Map progress to [0, 1] range (i / num_colors)
-                t = i / num_colors
-
-                # Adjust red, green, and blue channels with sine and cosine for smooth transitions
-                r = int(255 * (0.5 * (math.sin(2 * math.pi * t + 0) + 1)))  # Red
-                g = int(255 * (0.5 * (math.sin(2 * math.pi * t + 2 * math.pi / 3) + 1)))  # Green
-                b = int(255 * (0.5 * (math.sin(2 * math.pi * t + 4 * math.pi / 3) + 1)))  # Blue
-
-                # Append the RGB tuple to the list
-                colors.append((r, g, b))
-            return colors
-
-        colors = generate_rainbow_rgb(width)
-        font = QFont("Arial", 16)
-        painter.setFont(font)
-        painter.translate(width/2, height/2)
-
-        # for i in range(20,width):
-        #     if i % 20 == 0:
-        color = QColor(colors[self.color_index][0], colors[self.color_index][1], colors[self.color_index][2])
-        painter.setBrush(color)
-        painter.setPen(color)
-        angle_radians = math.radians(self.rotation)
-        self.triangles.append(self.Triangle(
-            int(width/2 + math.sin(angle_radians)*100),
-            int(height/2 + math.cos(angle_radians)*100),
-            20
-        ))
-        print(
-            [
-                int(width/2 + math.sin(angle_radians)*100),
-                int(height/2 + math.cos(angle_radians)*100),
-                20,
-                color.blue()
-            ]
+    if(radius > 200):
+        radius = 180
+    for i in range(len(dots)):
+        rotateX = x + (radius/len(dots))*(i) * math.cos(i + rotation_modifier)
+        rotateY = y + (radius/len(dots))*(i) * math.sin(i + rotation_modifier)
+        canvas.coords(
+            dots[i],
+            rotateX - 20,
+            rotateY - 20,
+            rotateX + 20,
+            rotateY + 20,
         )
 
-        for tri in self.triangles:
-            if tri is self.Triangle:
-                painter.drawPolygon(tri.poly)
+    root.after(16, animate)  # ~60 FPS
 
+animate()
+root.mainloop()
 
-    def update_rotation_pos(self):
-        self.rotation += 10
-        if self.rotation > 360:
-            self.rotation = 0
-
-        self.color_index += 5
-        if self.color_index > 200:
-            self.color_index = 0
-        self.repaint()
-
-
-
-
-
-app = QApplication(sys.argv)
-window = AnimationWidget()
-timer = QTimer()
-
-def start_timer():
-    global window
-    timer.timeout.connect(lambda: window.update_rotation_pos())
-    timer.start(100)
-
-def start_animation_ui():
-    global app
-    window.show()
-    start_timer()
-    sys.exit(app.exec())
-
-
-if __name__ == "__main__":
-    start_animation_ui()
+#
+# def start_timer():
+#     global window
+#     timer.timeout.connect(lambda: window.update_rotation_pos())
+#     timer.start(8)
+#
+# def start_animation_ui():
+#     global app
+#     window.show()
+#     start_timer()
+#     sys.exit(app.exec())
+#
+#
+# if __name__ == "__main__":
+#     start_animation_ui()

@@ -9,6 +9,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import socket
 import shutil
+import subprocess
 
 import Communism
 import test
@@ -48,16 +49,17 @@ def update_spotify_loop():
     while True:
         current = sp.current_playback()
         if current and current.get("is_playing"):
-            song = f"{current['item']['name']} - {current['item']['artists'][0]['name']}"
+            song = f"""{current['item']['name']}\n{current['item']['artists'][0]['name']}\n{current['item']['album']['name']}"""
             # print(formatSongName(song))
 
             with open(OUTPUT_SPOTIFY_FILE, 'r+', encoding='utf-8') as f:
-                if f.read() != formatSongName(song):
-                    print(["REEED", f.read(), formatSongName(song)])
+                f.seek(0)
+                preSong = f.read()
+                if preSong != song:
                     f.seek(0)
-                    f.write(formatSongName(song))
+                    f.write(song)
                     f.truncate()
-                    test.curMessage = formatSongName(song)
+                    # test.curMessage = formatSongName(song)
                     print("Updated spotify_info.txt")
 
                 album_images = current['item']['album']['images']
@@ -87,8 +89,8 @@ def pause_song():
         print("pause")
         sp.start_playback()
 
-def formatSongName(name):
-    return "Listening Now: " + name
+# def formatSongName(name):
+#     return "Listening Now: " + name
 
 def update_queue_loop():
     while True:
@@ -112,3 +114,4 @@ if __name__ == "__main__":
     spotifyThread.start()
     queueThread.start()
     guiThread.start()
+    subprocess.run(["python", "MicAnimation.py"])
