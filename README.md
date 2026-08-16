@@ -2,10 +2,11 @@
 Assistant Program Suit for LiveStreaming
 
 
-ALPHA:
+#ALPHA:
 
 
-Install
+Install:
+
 -Run by Running dist/StreamStartup.exe
 
 -Should run mic animation
@@ -15,13 +16,15 @@ Install
 
 
 Use:
-Text Files will populate with information capture with obs/streamlabs 
 
-capture windows for rendering
+-Text Files will populate with information capture with obs/streamlabs 
+
+-capture windows for rendering
 
 
 Customize:
-Right now the code is not copy protected feel free to debug and make your own animations!
+
+-Right now the code is not copy protected feel free to debug and make your own animations!
 
 
 
