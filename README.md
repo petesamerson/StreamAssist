@@ -4,9 +4,9 @@ Assistant Program Suit for LiveStreaming
 ALPHA:
 
 Install
--Run by Running dist/StreamStartup.exe
--Should run mic animation
--Close Mic Animation to try to sign into spotify
+\n-Run by Running dist/StreamStartup.exe
+\n-Should run mic animation
+\n-Close Mic Animation to try to sign into spotify
 
 Use:
 Text Files will populate with information capture with obs/streamlabs 
