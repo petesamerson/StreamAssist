@@ -1,5 +1,3 @@
-#Shared Things
-import StreamStartup
 
 album_art = ""
 

@@ -1,20 +1,17 @@
-import signal
-import sys
 import threading
-from multiprocessing.spawn import get_command_line
 import requests
 from bs4 import BeautifulSoup
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import socket
-import shutil
 import subprocess
 
+import sounddevice as sd
+
+
 import Communism
-import test
+import MicAnimation
 from GUIed import launch_gui
-from test import connectToChat
 
 URL = "https://nbq.gerhard.dev/16168"
 OUTPUT_QUEUE_FILE = "list_items.txt"
@@ -103,14 +100,14 @@ def update_queue_loop():
 
 
 
-chatThread = threading.Thread(target=connectToChat)
+# chatThread = threading.Thread(target=connectToChat)
 queueThread = threading.Thread(target=update_queue_loop)
 spotifyThread = threading.Thread(target=update_spotify_loop)
 guiThread = threading.Thread(target=launch_gui)
 
 
 if __name__ == "__main__":
-    chatThread.start()
+    # chatThread.start()
     spotifyThread.start()
     queueThread.start()
     guiThread.start()

@@ -9,9 +9,6 @@ from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QPushBut
     QGraphicsColorizeEffect, QSizePolicy, QTextEdit
 
 import Communism
-import StreamStartup
-import test
-from test import curMessage
 
 start = 300
 top = 300
