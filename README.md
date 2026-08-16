@@ -1,2 +1,2 @@
 # StreamAssist
-scripts for twitch.tv/OmygaZ
+Assistant Program Suit for LiveStrraming
