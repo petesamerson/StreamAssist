@@ -2,7 +2,9 @@
 Assistant Program Suit for LiveStreaming
 
 
-#ALPHA:
+------------ALPHA-----------------
+
+
 
 
 Install:
@@ -15,11 +17,15 @@ Install:
 
 
 
+
+
 Use:
 
 -Text Files will populate with information capture with obs/streamlabs 
 
 -capture windows for rendering
+
+
 
 
 Customize:
